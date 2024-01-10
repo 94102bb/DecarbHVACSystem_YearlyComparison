@@ -1,0 +1,72 @@
+# %load ../standard_import.txt
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import axes3d
+import seaborn as sns
+%matplotlib inline
+plt.style.use('seaborn-white')
+
+from sklearn import preprocessing
+from sklearn.preprocessing import scale
+import sklearn.linear_model as skl_lm
+from sklearn.metrics import mean_squared_error, r2_score
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
+from sklearn import model_selection
+from sklearn.linear_model import LinearRegression, Ridge, RidgeCV, Lasso, Lass
+oCV
+from sklearn.decomposition import PCA
+from sklearn.cross_decomposition import PLSRegression
+from sklearn.model_selection import KFold, cross_val_score
+from sklearn import neighbors
+from sklearn import utils
+from sklearn.metrics import confusion_matrix, classification_report, precision
+_score
+
+# Compare the energy use data for pre- and post- retrofitting 
+df = pd.read_csv(R"C:\Users\szb759\Downloads\597\hw3\pro5.12.csv")
+df.info()
+df.head()
+
+# plot 
+fig,ax = plt.subplots()
+plot1=ax.scatter(df["Month1"],df["WB1"], label="1994")
+plot2=ax.scatter(df["Month2"],df["WB2"],label="1995")
+ax.set_xlabel("Month")
+ax.set_ylabel("WBE")
+ax.set_title("Monthly Whole Building Energy Use")
+ax.legend()
+
+# Choose two model with month as indicator variables.
+# K-Nearest Neighbors Model
+X_train = df.T1.values.reshape(-1,1)
+y_train = df.WB1
+X_test = df.T2.values.reshape(-1,1)
+y_test = df.WB2
+lab_enc = preprocessing.LabelEncoder()
+encoded1 = lab_enc.fit_transform(y_train)
+encoded2 = lab_enc.fit_transform(y_test)
+knn = neighbors.KNeighborsClassifier(n_neighbors=1)
+pred = knn.fit(X_train, encoded1).predict(X_test)
+print(confusion_matrix(encoded2, pred).T)
+print(classification_report(encoded2, pred, digits=3))
+knn = neighbors.KNeighborsClassifier(n_neighbors=3)
+pred = knn.fit(X_train, encoded1).predict(X_test)
+print(confusion_matrix(encoded2, pred).T)
+print(classification_report(encoded2, pred, digits=3))
+
+# Predict Second Year Without Modification
+knn = neighbors.KNeighborsClassifier(n_neighbors=1)
+pred = knn.fit(X_train, encoded1).predict(X_test)
+print(confusion_matrix(encoded1, pred).T)
+print(classification_report(encoded1, pred, digits=3))
+
+y_pred=lab_enc.inverse_transform(pred)
+fig,ax = plt.subplots()
+plot1=ax.scatter(df["Month2"],y_pred, label="pred")
+plot2=ax.scatter(df["Month2"],df["WB2"],label="test")
+ax.set_xlabel("Month")
+ax.set_ylabel("WBE")
+ax.set_title("Monthly Whole Building Energy Use")
+ax.legend()
